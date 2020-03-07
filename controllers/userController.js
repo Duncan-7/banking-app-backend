@@ -1,5 +1,7 @@
 const User = require('../models/user');
+const Account = require('../models/account');
 const jwt = require('jsonwebtoken');
+const async = require('async');
 
 //get all users
 exports.index = function (req, res) {
@@ -17,17 +19,29 @@ exports.index = function (req, res) {
 
 //get user data
 exports.getUser = function (req, res) {
-  User.findById(req.params.id)
-    .exec(function (err, user) {
-      if (err) {
-        //handle error
-      } else {
-        res.json({
-          user: user
-        });
-      }
-    })
+  async.parallel({
+    user: function (callback) {
+      User.findById(req.params.id, '_id, email fullName', callback);
+    },
+    accounts: function (callback) {
+      Account.find({ user: req.params.id }, callback);
+    }
+  }, function (err, results) {
+    console.log(results)
+    if (err) {
+      res.status(500)
+        .json({
+          error: err
+        })
+    } else {
+      res.json({
+        user: results.user,
+        accounts: results.accounts
+      });
+    }
+  })
 }
+
 
 exports.signUp = function (req, res, next) {
   const email = req.body.email;
@@ -85,6 +99,28 @@ exports.login = function (req, res) {
     }
   });
 }
+
+exports.editUser = function (req, res, next) {
+  const email = req.body.email;
+  const password = req.body.password;
+  const fullName = req.body.fullName;
+  User.findOne({_id: req.params.id}, function(err, user) {
+    user.email = email;
+    user.fullName = fullName;
+    user.password = password;
+    user.save(function (err) {
+      if (err) {
+        console.log(err)
+        res.status(500)
+          .json({
+            error: "Problem updating user. Please try again."
+          })
+      } else {
+        res.send("User updated")
+      }
+    });
+  })
+};
 
 //return token and user info
 const returnToken = (email, userId, admin, fullName, res) => {

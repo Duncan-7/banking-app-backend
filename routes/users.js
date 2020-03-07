@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-const User = require('../models/user.js');
 const withAuth = require('../middleware/auth');
 const checkAdmin = require('../middleware/checkAdmin');
 const userController = require('../controllers/userController');
@@ -18,23 +17,10 @@ router.get('/checkToken', withAuth, function (req, res) {
   res.sendStatus(200);
 })
 
+//edit User
+router.post('/:id/edit', withAuth, userController.editUser);
 
-
-router.get('/:id', withAuth, function (req, res) {
-  User.findById(req.params.id, function (err, user) {
-    if (err) {
-      res.status(500)
-        .json({
-          error: 'Couldn\'t find user'
-        });
-    } else {
-      res.json({
-        userId: user._id,
-        admin: user.admin,
-        balance: user.balance
-      });
-    }
-  });
-});
+//get user data
+router.get('/:id', withAuth, userController.getUser);
 
 module.exports = router;

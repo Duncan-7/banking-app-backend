@@ -1,7 +1,7 @@
 const User = require('../models/user');
 
 const checkAdmin = function (req, res, next) {
-  const userId = req.body.userId || req.query.userId;
+  const userId = req.body.adminId || req.query.userId;
   console.log(userId)
   User.findById(userId, function (err, user) {
     if (err || user === null) {
