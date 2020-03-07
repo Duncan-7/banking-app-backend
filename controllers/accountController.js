@@ -34,7 +34,7 @@ exports.getAccount = function (req, res) {
           { sourceAccountId: req.params.id },
           { targetAccountId: req.params.id }
         ]
-      }, callback);
+      }, callback).populate('targetAccountId').populate('sourceAccountId');
     }
   }, function (err, results) {
     console.log(results)
