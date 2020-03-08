@@ -29,6 +29,7 @@ exports.create = async function (req, res) {
   } catch (error) {
     await session.abortTransaction();
     console.log(error);
+    res.status(500);
     throw error;
   } finally {
     session.endSession();
