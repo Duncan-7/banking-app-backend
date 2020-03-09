@@ -8,7 +8,7 @@ exports.index = function (req, res) {
   User.find({})
     .exec(function (err, users) {
       if (err) {
-        console.log(users)
+        res.status(500).json({ error: "Unable to get user data. Please try again." })
       } else {
         res.json({
           users: users
@@ -27,11 +27,10 @@ exports.getUser = function (req, res) {
       Account.find({ user: req.params.id }, callback);
     }
   }, function (err, results) {
-    console.log(results)
     if (err) {
       res.status(500)
         .json({
-          error: err
+          error: "Couldn't find user data. Please try again."
         })
     } else {
       res.json({
@@ -69,27 +68,26 @@ exports.login = function (req, res) {
   const { email, password } = req.body;
   User.findOne({ email }, function (err, user) {
     if (err) {
-      console.error(err);
       res.status(500)
         .json({
-          error: 'Internal error please try again'
+          error: 'Server error, please try again.'
         });
     } else if (!user) {
       res.status(401)
         .json({
-          error: 'Incorrect email or password'
+          error: 'No user exists with this email address.'
         });
     } else {
       user.isCorrectPassword(password, function (err, same) {
         if (err) {
           res.status(500)
             .json({
-              error: 'Internal error please try again'
+              error: 'Server error, please try again'
             });
         } else if (!same) {
           res.status(401)
             .json({
-              error: 'Incorrect email or password'
+              error: 'Incorrect password.'
             });
         } else {
           // Issue token
@@ -104,13 +102,12 @@ exports.editUser = function (req, res, next) {
   const email = req.body.email;
   const password = req.body.password;
   const fullName = req.body.fullName;
-  User.findOne({_id: req.params.id}, function(err, user) {
+  User.findOne({ _id: req.params.id }, function (err, user) {
     user.email = email;
     user.fullName = fullName;
     user.password = password;
     user.save(function (err) {
       if (err) {
-        console.log(err)
         res.status(500)
           .json({
             error: "Problem updating user. Please try again."

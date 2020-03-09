@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 
 //create new transaction
 exports.create = async function (req, res) {
-  console.log('starting')
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
@@ -28,8 +27,7 @@ exports.create = async function (req, res) {
     await session.commitTransaction();
   } catch (error) {
     await session.abortTransaction();
-    console.log(error);
-    res.status(500);
+    res.status(500).json({ error: "Transaction unsuccessful. Please check account number and try again." });
     throw error;
   } finally {
     session.endSession();

@@ -14,8 +14,8 @@ exports.create = function (req, res) {
     if (err) {
       res.status(500)
         .json({
-          error: "Problem creating user. Please try again."
-        })
+          error: "Problem creating account. Check account number is unique."
+        });
     } else {
       res.send("Account Created");
     }
@@ -37,11 +37,10 @@ exports.getAccount = function (req, res) {
       }, callback).populate('targetAccountId').populate('sourceAccountId');
     }
   }, function (err, results) {
-    console.log(results)
     if (err) {
       res.status(500)
         .json({
-          error: err
+          error: "Problem getting transaction data. Please try again."
         })
     } else {
       res.json({
